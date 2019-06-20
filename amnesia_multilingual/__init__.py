@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
+from sqlalchemy import event
+from sqlalchemy import orm
+
+from pyramid.threadlocal import get_current_registry
+
+from amnesia_multilingual.builders import setup_hybrids
+from amnesia_multilingual.builders import setup_relationships
+
+log = logging.getLogger(__name__)
+
 _TRANSLATIONS_KEY = 'amnesia.translations'
 
 
@@ -14,14 +26,14 @@ def _setup_translation():
 
     if 'mappings' in _cfg:
         for cls, tr_cls in _cfg['mappings'].items():
-            setup_translation(cls, tr_cls)
+            setup_relationships(cls, tr_cls)
 
     if 'attrs' in _cfg:
         for cls, cols in _cfg['attrs'].items():
             translation_cls = _cfg['mappings'][cls]
             for col in cols:
                 log.debug('Adding hybrid attribute: %s.%s', cls, col)
-                setattr(cls, col, make_hybrid(cls, col, translation_cls))
+                setattr(cls, col, setup_hybrids(cls, col, translation_cls))
 
 
 def set_translatable_attrs(config, cls, cols):
