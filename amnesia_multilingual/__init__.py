@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+
+_TRANSLATIONS_KEY = 'amnesia.translations'
+
+
+def _setup_translation():
+    log.debug('SQLAlchemy after_configured handler _setup_translation called')
+    registry = get_current_registry()
+
+    if _TRANSLATIONS_KEY not in registry:
+        return
+
+    _cfg = registry[_TRANSLATIONS_KEY]
+
+    if 'mappings' in _cfg:
+        for cls, tr_cls in _cfg['mappings'].items():
+            setup_translation(cls, tr_cls)
+
+    if 'attrs' in _cfg:
+        for cls, cols in _cfg['attrs'].items():
+            translation_cls = _cfg['mappings'][cls]
+            for col in cols:
+                log.debug('Adding hybrid attribute: %s.%s', cls, col)
+                setattr(cls, col, make_hybrid(cls, col, translation_cls))
+
+
+def set_translatable_attrs(config, cls, cols):
+    _attrs = config.registry.\
+        setdefault(_TRANSLATIONS_KEY, {}).\
+        setdefault('attrs', {})
+
+    _attrs[cls] = cols
+
+
+def set_translatable_mapping(config, cls, trans_cls):
+    _mappings = config.registry.\
+        setdefault(_TRANSLATIONS_KEY, {}).\
+        setdefault('mappings', {})
+
+    _mappings[cls] = trans_cls
+
+
+def includeme(config):
+    event.listen(orm.mapper, 'after_configured', _setup_translation)
+    config.add_directive('set_translatable_attrs', set_translatable_attrs)
+    config.add_directive('set_translatable_mapping', set_translatable_mapping)
+    config.add_tween('amnesia_multilingual.tweens.path_info_lang_tween')
