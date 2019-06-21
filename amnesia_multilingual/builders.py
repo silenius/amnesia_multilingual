@@ -83,14 +83,15 @@ def setup_relationships(content_cls, translation_cls, localizer=None, **kwargs):
         )
     })
 
-    translation_mapper.add_properties({
-        'content': orm.relationship(
-            lambda: content_cls,
-            back_populates='translations',
-            innerjoin=True,
-            uselist=False
-        ),
-    })
+    if not 'content' in translation_mapper.relationships:
+        translation_mapper.add_properties({
+            'content': orm.relationship(
+                lambda: content_cls,
+                back_populates='translations',
+                innerjoin=True,
+                uselist=False
+            ),
+        })
 
 
 def setup_hybrids(cls, name, translation_cls):

@@ -9,4 +9,4 @@ def includeme(config):
     config.include('.mapper')
 
     config.set_translatable_mapping(File, FileTranslation)
-    config.set_translatable_attrs(File, ('title', 'description'))
+    config.set_translatable_attrs(File, ('title', 'description', 'fts'))
