@@ -1,3 +1,5 @@
+create schema if not exists amnesia_translation;
+
 create table amnesia_translation.content_translation (
     language_id char(2)     not null,
     content_id  integer     not null,
