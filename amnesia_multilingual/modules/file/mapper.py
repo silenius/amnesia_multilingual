@@ -16,7 +16,7 @@ def includeme(config):
 
     orm.mapper(
         FileTranslation,
-        tables['content_translation'],
+        tables['amnesia_multilingual.content_translation'],
         inherits=ContentTranslation,
         polymorphic_identity=get_type_id(config, 'file')
     )

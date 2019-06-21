@@ -15,7 +15,7 @@ def includeme(config):
 
     orm.mapper(
         ContentTranslation,
-        tables['content_translation'],
+        tables['amnesia_multilingual.content_translation'],
         # pylint: disable=no-member
         polymorphic_on=sql.select([
             Content.content_type_id
