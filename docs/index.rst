@@ -7,6 +7,13 @@ Amnesia multilingual plugin
 Amnesia multilingual content plugin provides multi-language support for
 Content-based content types in AmnesiaCMS.
 
+=================
+How does it work?
+=================
+
+Multilingual support for each Content-based content type will be stored in a
+dedicated translation table.
+
 =====
 Usage
 =====
@@ -17,6 +24,25 @@ Usage
 
       pip install amnesia_multilingual
 
+#. Create translation table(s):
+
+   .. code-block:: sql
+
+      create table amnesia_translation.document_translation (
+         language_id char(2) not null,
+         content_id  integer not null,
+         body        text    not null,
+
+         constraint pk_document_translation
+             primary key(language_id, content_id),
+
+         constraint fk_document_translation_content_translation
+             foreign key(language_id, content_id) 
+             references amnesia_translation.content_translation(language_id, content_id),
+
+         constraint fk_document_translation_document
+             foreign key(content_id) references document(content_id)
+      );
 
 #. Configure your application:
 
