@@ -15,21 +15,25 @@ from sqlalchemy.ext.hybrid import hybrid_property
 log = logging.getLogger(__name__)
 
 
-def _localizer(request=None):
-    if not request:
-        request = get_current_request()
+def get_current_locale():
+    request = get_current_request()
 
     return request.locale_name
 
 
-def setup_relationships(content_cls, translation_cls, localizer=None, **kwargs):
+def get_default_locale():
+    registry = get_current_registry()
+
+    return registry.settings.get('pyramid.default_locale_name', 'en')
+
+
+def setup_relationships(content_cls, translation_cls,
+                        current_locale=get_current_locale,
+                        default_locale=get_default_locale):
     '''Helper to setup translations'''
 
     log.debug('Adding translation properties: %s to %s', content_cls,
               translation_cls)
-
-    if not localizer:
-        localizer = _localizer
 
     content_mapper = orm.class_mapper(content_cls)
     translation_mapper = orm.class_mapper(translation_cls)
@@ -39,9 +43,11 @@ def setup_relationships(content_cls, translation_cls, localizer=None, **kwargs):
         sql.func.row_number().over(
             order_by=[
                 sql.desc(translation_cls.language_id == sql.bindparam(
-                    None, callable_=lambda: localizer(), type_=String()
+                    None, callable_=current_locale, type_=String()
                 )),
-                sql.desc(translation_cls.language_id == 'en')
+                sql.desc(translation_cls.language_id == sql.bindparam(
+                    None, callable_=default_locale, type_=String()
+                ))
             ],
             partition_by=translation_cls.content_id
         ).label('index')
@@ -49,9 +55,11 @@ def setup_relationships(content_cls, translation_cls, localizer=None, **kwargs):
         sql.and_(
             translation_cls.language_id.in_((
                 sql.bindparam(
-                    None, callable_=lambda: localizer(), type_=String()
+                    None, callable_=current_locale, type_=String()
                 ),
-                'en'
+                sql.bindparam(
+                    None, callable_=default_locale, type_=String()
+                )
             ))
         )
     ).alias()
