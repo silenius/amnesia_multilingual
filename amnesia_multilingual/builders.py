@@ -102,7 +102,8 @@ def setup_relationships(content_cls, translation_cls,
         })
 
 
-def setup_hybrids(cls, name, translation_cls):
+def setup_hybrids(cls, name, translation_cls,
+                  current_locale=get_current_locale):
 
     @hybrid_property
     def _column(self):
@@ -110,7 +111,7 @@ def setup_hybrids(cls, name, translation_cls):
 
     @_column.setter
     def _column(self, value):
-        locale_name = _localizer()
+        locale_name = current_locale()
 
         trans = self.translations.setdefault(
             locale_name, translation_cls(language_id=locale_name)
