@@ -38,29 +38,24 @@ def setup_relationships(content_cls, translation_cls,
     content_mapper = orm.class_mapper(content_cls)
     translation_mapper = orm.class_mapper(translation_cls)
 
+    current_locale = sql.bindparam(None, callable_=current_locale,
+                                   type_=String())
+
+    default_locale = sql.bindparam(None, callable_=default_locale,
+                                   type_=String())
+
     partition = sql.select([
         translation_cls,
         sql.func.row_number().over(
             order_by=[
-                sql.desc(translation_cls.language_id == sql.bindparam(
-                    None, callable_=current_locale, type_=String()
-                )),
-                sql.desc(translation_cls.language_id == sql.bindparam(
-                    None, callable_=default_locale, type_=String()
-                ))
+                sql.desc(translation_cls.language_id == current_locale),
+                sql.desc(translation_cls.language_id == default_locale)
             ],
             partition_by=translation_cls.content_id
         ).label('index')
     ], use_labels=True).where(
         sql.and_(
-            translation_cls.language_id.in_((
-                sql.bindparam(
-                    None, callable_=current_locale, type_=String()
-                ),
-                sql.bindparam(
-                    None, callable_=default_locale, type_=String()
-                )
-            ))
+            translation_cls.language_id.in_((current_locale, default_locale))
         )
     ).alias()
 
