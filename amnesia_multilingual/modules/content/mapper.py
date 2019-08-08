@@ -15,12 +15,12 @@ def includeme(config):
 
     orm.mapper(
         ContentTranslation,
-        tables['content_translation'],
+        tables['amnesia_multilingual.content_translation'],
         # pylint: disable=no-member
         polymorphic_on=sql.select([
             Content.content_type_id
         ]).where(
-            tables['content_translation'].c.content_id == Content.id
+            tables['amnesia_multilingual.content_translation'].c.content_id == Content.id
         ).correlate_except(Content).as_scalar(),
         properties={
             'language': orm.relationship(

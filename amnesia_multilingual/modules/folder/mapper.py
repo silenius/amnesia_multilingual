@@ -3,6 +3,7 @@
 from sqlalchemy import orm
 
 from amnesia.modules.content_type.utils import get_type_id
+from amnesia.modules.folder import Folder
 from amnesia_multilingual.modules.content import ContentTranslation
 from amnesia_multilingual.modules.folder import FolderTranslation
 
@@ -15,7 +16,12 @@ def includeme(config):
 
     orm.mapper(
         FolderTranslation,
-        tables['content_translation'],
+        tables['amnesia_multilingual.content_translation'],
         inherits=ContentTranslation,
-        polymorphic_identity=get_type_id(config, 'folder')
+        polymorphic_identity=get_type_id(config, 'folder'),
+        properties={
+            'content': orm.relationship(
+                Folder, innerjoin=True, uselist=False
+            )
+        }
     )
