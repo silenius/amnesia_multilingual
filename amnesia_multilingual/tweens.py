@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from pyramid.settings import aslist
+
+log = logging.getLogger(__name__)
 
 class path_info_lang_tween:
 
@@ -17,13 +21,13 @@ class path_info_lang_tween:
         return aslist(self.settings['available_languages'])
 
     def __call__(self, request):
-        if not hasattr(request, '_LOCALE_'):
+        if not getattr(request, '_LOCALE_', None) in self.available_languages:
             if request.path_info_peek() in self.available_languages:
                 lang = request.path_info_pop()
             else:
                 lang = self.settings['default_locale_name']
 
-            setattr(request, '_LOCALE_', lang)
+            request._LOCALE_ = lang
 
         response = self.handler(request)
 
