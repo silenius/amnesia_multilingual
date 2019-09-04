@@ -32,8 +32,7 @@ def _setup_translation():
         for cls, cols in _cfg['attrs'].items():
             translation_cls = _cfg['mappings'][cls]
             for col in cols:
-                log.debug('Adding hybrid attribute: %s.%s', cls, col)
-                setattr(cls, col, setup_hybrids(cls, col, translation_cls))
+                setup_hybrids(cls, col, translation_cls)
 
 
 def set_translatable_attrs(config, cls, cols):

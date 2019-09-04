@@ -32,8 +32,8 @@ def setup_relationships(content_cls, translation_cls,
                         default_locale=get_default_locale):
     '''Helper to setup translations'''
 
-    log.debug('Adding translation properties: %s to %s', content_cls,
-              translation_cls)
+    log.info('Adding translation properties: %s to %s', content_cls,
+             translation_cls)
 
     content_mapper = orm.class_mapper(content_cls)
     translation_mapper = orm.class_mapper(translation_cls)
@@ -86,7 +86,7 @@ def setup_relationships(content_cls, translation_cls,
         )
     })
 
-    if not 'content' in translation_mapper.relationships:
+    if 'content' not in translation_mapper.relationships:
         translation_mapper.add_properties({
             'content': orm.relationship(
                 lambda: content_cls,
@@ -100,12 +100,10 @@ def setup_relationships(content_cls, translation_cls,
 def setup_hybrids(cls, name, translation_cls,
                   current_locale=get_current_locale):
 
-    @hybrid_property
-    def _column(self):
-        return getattr(self.current_translation, name, 'NONE')
+    def _fget(self):
+        return getattr(self.current_translation, name, None)
 
-    @_column.setter
-    def _column(self, value):
+    def _fset(self, value):
         locale_name = current_locale()
 
         trans = self.translations.setdefault(
@@ -114,10 +112,11 @@ def setup_hybrids(cls, name, translation_cls,
 
         setattr(trans, name, value)
 
-    #@_column.expression
-    #def _column(cls):
-    #    return cls.current_translation.has()
+    def _expr(_cls):
+        return _cls.translations
 
-    _column.__name__ = name
+    hprop = hybrid_property(fget=_fget, fset=_fset, expr=_expr)
 
-    return _column
+    log.info('Adding hybrid attribute: %s.%s', cls, name)
+
+    setattr(cls, name, hprop)
