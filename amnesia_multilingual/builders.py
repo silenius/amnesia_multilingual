@@ -7,7 +7,6 @@ from pyramid.threadlocal import get_current_request
 
 from sqlalchemy import orm
 from sqlalchemy import sql
-from sqlalchemy import event
 from sqlalchemy.types import String
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -73,7 +72,6 @@ def setup_relationships(content_cls, translation_cls,
             innerjoin=True,
             viewonly=True,
             bake_queries=False,
-            #back_populates='content'
         ),
 
         'translations': orm.relationship(
@@ -96,27 +94,26 @@ def setup_relationships(content_cls, translation_cls,
             ),
         })
 
-
 def setup_hybrids(cls, name, translation_cls,
-                  current_locale=get_current_locale):
+                  current_locale=get_current_locale, default=None):
 
     def _fget(self):
-        return getattr(self.current_translation, name, None)
+        return getattr(self.current_translation, name, default)
 
     def _fset(self, value):
         locale_name = current_locale()
 
         trans = self.translations.setdefault(
-            locale_name, translation_cls(language_id=locale_name)
+            locale_name,
+            translation_cls(language_id=locale_name)
         )
 
         setattr(trans, name, value)
 
     def _expr(_cls):
-        return _cls.translations
-
-    hprop = hybrid_property(fget=_fget, fset=_fset, expr=_expr)
+        return _cls.current_translation
 
     log.info('Adding hybrid attribute: %s.%s', cls, name)
 
-    setattr(cls, name, hprop)
+    setattr(cls, name, hybrid_property(fget=_fget, fset=_fset, expr=_expr))
+

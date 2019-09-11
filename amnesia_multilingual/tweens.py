@@ -29,6 +29,4 @@ class path_info_lang_tween:
 
             request._LOCALE_ = lang
 
-        response = self.handler(request)
-
-        return response
+        return self.handler(request)

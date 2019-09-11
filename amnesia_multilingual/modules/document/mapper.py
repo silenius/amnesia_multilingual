@@ -6,6 +6,7 @@ from sqlalchemy import orm
 
 from amnesia.modules.content_type.utils import get_type_id
 from amnesia.modules.document import Document
+from amnesia.modules.language import Language
 from amnesia_multilingual.modules.content import ContentTranslation
 from amnesia_multilingual.modules.document import DocumentTranslation
 

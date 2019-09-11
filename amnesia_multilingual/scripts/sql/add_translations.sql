@@ -52,6 +52,28 @@ create table amnesia_multilingual.event_translation (
         foreign key(content_id) references event(content_id)
 );
 
+create table amnesia_multilingual.data_translation (
+    language_id     char(2) not null,
+    content_id      integer not null,
+    mime_id         integer not null,
+    original_name   text    not null,
+    file_size       real    not null,
+    path_name       serial  not null,
+
+    constraint pk_data_translation
+        primary key(language_id, content_id),
+
+    constraint fk_data_translation_content_translation
+        foreign key(language_id, content_id) 
+        references amnesia_multilingual.content_translation(language_id, content_id),
+
+    constraint fk_data_translation_data
+        foreign key(content_id) references data(content_id),
+
+    constraint fk_data_translation_mime
+        foreign key(mime_id) references mime(id) deferrable initially deferred
+);
+
 insert into amnesia_multilingual.content_translation(language_id, content_id, title, description) 
 select 'en', id as content_id, title, description from content;
 
@@ -64,3 +86,9 @@ alter table document drop column body;
 
 insert into amnesia_multilingual.event_translation select 'en', content_id, body from event;
 alter table event drop column body;
+
+insert into amnesia_multilingual.data_translation select 'en', content_id, mime_id, original_name, file_size, path_name from data;
+alter table data drop column original_name;
+alter table data drop column file_size;
+alter table data drop column path_name;
+alter table data drop column mime_id;

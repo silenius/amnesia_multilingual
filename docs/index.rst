@@ -11,8 +11,9 @@ Content-based content types in AmnesiaCMS.
 How does it work?
 =================
 
-Multilingual support for each Content-based content type will be stored in a
-dedicated translation table.
+Entities which contain translatable fields are splitted. Non-translatable
+fields remain in the base entity table while translatable fields go in a
+dedicated table.
 
 =====
 Usage

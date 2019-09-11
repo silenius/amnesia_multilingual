@@ -10,4 +10,4 @@ def includeme(config):
 
     config.set_translatable_mapping(Document, DocumentTranslation)
     config.set_translatable_attrs(Document, ('title', 'description', 'body',
-                                             'fts' ))
+                                             'fts'))
