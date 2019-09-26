@@ -60,8 +60,12 @@ def setup_relationships(content_cls, translation_cls,
 
     partition_alias = orm.aliased(translation_cls, partition)
 
+    prop_prefix = content_mapper.class_.__name__.lower()
+    prop_current_translation = '{}_current_translation'.format(prop_prefix)
+    prop_translations = '{}_translations'.format(prop_prefix)
+
     content_mapper.add_properties({
-        'current_translation': orm.relationship(
+        prop_current_translation: orm.relationship(
             partition_alias,
             primaryjoin=sql.and_(
                 orm.foreign(partition_alias.content_id) == content_cls.id,
@@ -74,7 +78,7 @@ def setup_relationships(content_cls, translation_cls,
             bake_queries=False,
         ),
 
-        'translations': orm.relationship(
+        prop_translations: orm.relationship(
             lambda: translation_cls,
             cascade='all, delete-orphan',
             #lazy='subquery',
@@ -83,6 +87,14 @@ def setup_relationships(content_cls, translation_cls,
             collection_class=attribute_mapped_collection('language_id')
         )
     })
+
+    content_cls.current_translation = property(
+        lambda self: getattr(self, prop_current_translation)
+    )
+
+    content_cls.translations = property(
+        lambda self: getattr(self, prop_translations)
+    )
 
     if 'content' not in translation_mapper.relationships:
         translation_mapper.add_properties({
