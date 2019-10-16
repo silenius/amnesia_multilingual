@@ -81,7 +81,6 @@ def setup_relationships(content_cls, translation_cls,
         prop_translations: orm.relationship(
             lambda: translation_cls,
             cascade='all, delete-orphan',
-            #lazy='subquery',
             innerjoin=True,
             back_populates='content',
             collection_class=attribute_mapped_collection('language_id')
