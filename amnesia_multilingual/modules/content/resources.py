@@ -33,15 +33,11 @@ class ContentTranslationManager(Resource):
         return aslist(self.settings['available_languages'])
 
     def untranslated_languages(self):
+        # pylint: disable=no-member
         filters = sql.and_(
             Language.id.in_(self.available_languages),
-            sql.not_(
-                sql.and_(
-                    Language.translations.any(language_id=Language.id,
-                                              content_id=self.entity.id)
-                )
-            )
-        )
+            sql.not_(Language.translations.any(language_id=Language.id,
+                                               content_id=self.entity.id)))
 
         return self.dbsession.query(Language).filter(filters).all()
 

@@ -14,7 +14,7 @@ def includeme(config):
     config.scan(__name__)
 
 
-@view_defaults(containment=ContentTranslationEntity)
+@view_defaults(context=ContentTranslationEntity)
 class ContentTranslationCRUD(BaseView):
 
     ##########################################################################
