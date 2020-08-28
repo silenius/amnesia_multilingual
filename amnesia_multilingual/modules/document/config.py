@@ -9,5 +9,5 @@ def includeme(config):
     config.include('.mapper')
 
     config.set_translatable_mapping(Document, DocumentTranslation)
-    config.set_translatable_attrs(Document, ('title', 'description', 'body',
-                                             'fts'))
+    config.set_translatable_attrs(Document, ('fts', 'title', 'description',
+                                             'body', ))

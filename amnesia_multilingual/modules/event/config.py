@@ -10,5 +10,5 @@ def includeme(config):
     config.include('.mapper')
 
     config.set_translatable_mapping(Event, EventTranslation)
-    config.set_translatable_attrs(Event, ('title', 'description', 'body',
-                                          'fts'))
+    config.set_translatable_attrs(Event, ('fts', 'title', 'description',
+                                          'body'))

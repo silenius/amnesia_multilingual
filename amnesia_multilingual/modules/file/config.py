@@ -12,7 +12,7 @@ def includeme(config):
     config.include('.mapper')
 
     config.set_translatable_mapping(File, FileTranslation)
-    config.set_translatable_attrs(File, ('title', 'description', 'fts',
+    config.set_translatable_attrs(File, ('fts', 'title', 'description',
                                          'original_name', 'file_size',
                                          'path_name', 'mime_id'))
     config.add_subscriber(handle_path_name, FileUpdated)
@@ -26,4 +26,4 @@ def handle_path_name(event):
 
     if entity_locale != current_locale:
         session = orm.object_session(event.entity)
-        session.expire(event.entity, ['current_translation'])
+        session.expire(event.entity, ['file_current_translation'])

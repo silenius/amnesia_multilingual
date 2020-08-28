@@ -37,5 +37,4 @@ def includeme(config):
         }
     )
 
-    File.mime = association_proxy('current_translation', 'mime')
-    #File.mime_id = association_proxy('current_translation', 'mime_id')
+    File.mime = association_proxy('file_current_translation', 'mime')

@@ -27,7 +27,8 @@ def includeme(config):
                 Language,
                 lazy='joined',
                 innerjoin=True,
-                uselist=False
+                uselist=False,
+                backref=orm.backref('translations')
             ),
 
             'content': orm.relationship(
