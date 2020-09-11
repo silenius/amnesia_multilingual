@@ -21,6 +21,7 @@ class path_info_lang_tween:
         return aslist(self.settings['available_languages'])
 
     def __call__(self, request):
+        request._script_name = request.script_name
         if not getattr(request, '_LOCALE_', None) in self.available_languages:
             if request.path_info_peek() in self.available_languages:
                 lang = request.path_info_pop()
