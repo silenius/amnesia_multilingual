@@ -18,9 +18,4 @@ def includeme(config):
         tables['amnesia_multilingual.event_translation'],
         inherits=ContentTranslation,
         polymorphic_identity=get_type_id(config, 'event'),
-        properties={
-            'content': orm.relationship(
-                Event, innerjoin=True, uselist=False
-            )
-        }
     )

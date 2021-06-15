@@ -27,10 +27,6 @@ def includeme(config):
         inherits=ContentTranslation,
         polymorphic_identity=get_type_id(config, 'file'),
         properties={
-            'content': orm.relationship(
-                File, innerjoin=True, uselist=False
-            ),
-
             'mime': orm.relationship(
                  Mime, lazy='joined'
             )

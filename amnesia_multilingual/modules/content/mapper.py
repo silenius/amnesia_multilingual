@@ -1,42 +1,26 @@
-# -*- coding: utf-8 -*-
+import logging
 
 from sqlalchemy import orm
 from sqlalchemy import sql
 
 from amnesia.modules.content import Content
-from amnesia.modules.language import Language
 from amnesia_multilingual.modules.content import ContentTranslation
 
+log = logging.getLogger(__name__)
 
 def includeme(config):
     tables = config.registry['metadata'].tables
-
     config.include('amnesia.modules.content.mapper')
 
+    ct = tables['amnesia_multilingual.content_translation']
+
     orm.mapper(
-        ContentTranslation,
-        tables['amnesia_multilingual.content_translation'],
-        # pylint: disable=no-member
+        ContentTranslation, ct,
         polymorphic_on=sql.select([
             Content.content_type_id
         ]).where(
-            tables['amnesia_multilingual.content_translation'].c.content_id == Content.id
-        ).correlate_except(Content).as_scalar(),
-        properties={
-            'language': orm.relationship(
-                Language,
-                lazy='joined',
-                innerjoin=True,
-                uselist=False,
-                backref=orm.backref('translations')
-            ),
-
-            'content': orm.relationship(
-                Content,
-                #lazy='joined',
-                innerjoin=True,
-                uselist=False
-            ),
-
-        }
+            ct.c.content_id == Content.id
+        ).correlate_except(
+            Content
+        ).as_scalar()
     )

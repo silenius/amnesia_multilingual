@@ -18,10 +18,5 @@ def includeme(config):
         FolderTranslation,
         tables['amnesia_multilingual.content_translation'],
         inherits=ContentTranslation,
-        polymorphic_identity=get_type_id(config, 'folder'),
-        properties={
-            'content': orm.relationship(
-                Folder, innerjoin=True, uselist=False
-            )
-        }
+        polymorphic_identity=get_type_id(config, 'folder')
     )

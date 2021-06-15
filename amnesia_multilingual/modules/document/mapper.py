@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
 from sqlalchemy import orm
 
 from amnesia.modules.content_type.utils import get_type_id
-from amnesia.modules.document import Document
-from amnesia.modules.language import Language
 from amnesia_multilingual.modules.content import ContentTranslation
 from amnesia_multilingual.modules.document import DocumentTranslation
 
@@ -23,9 +19,4 @@ def includeme(config):
         tables['amnesia_multilingual.document_translation'],
         inherits=ContentTranslation,
         polymorphic_identity=get_type_id(config, 'document'),
-        properties={
-            'content': orm.relationship(
-                Document, innerjoin=True, uselist=False
-            )
-        }
     )
