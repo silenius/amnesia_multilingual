@@ -61,7 +61,7 @@ def setup_relationships(content_cls, translation_cls,
     ).alias()
 
     partition_alias = orm.aliased(
-        translation_cls, partition
+        translation_cls, partition, flat=True
     )
 
     # First, add properties on the Content-like class
