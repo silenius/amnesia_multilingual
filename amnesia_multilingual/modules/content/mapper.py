@@ -3,6 +3,8 @@ import logging
 from sqlalchemy import orm
 from sqlalchemy import sql
 
+from amnesia.db import mapper_registry
+
 from amnesia.modules.content import Content
 from amnesia_multilingual.modules.content import ContentTranslation
 
@@ -14,8 +16,9 @@ def includeme(config):
 
     ct = tables['amnesia_multilingual.content_translation']
 
-    orm.mapper(
-        ContentTranslation, ct,
+    mapper_registry.map_imperatively(
+        ContentTranslation,
+        ct,
         polymorphic_on=sql.select([
             Content.content_type_id
         ]).where(

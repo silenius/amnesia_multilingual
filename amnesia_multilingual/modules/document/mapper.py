@@ -2,7 +2,9 @@ import logging
 
 from sqlalchemy import orm
 
+from amnesia.db import mapper_registry
 from amnesia.modules.content_type.utils import get_type_id
+
 from amnesia_multilingual.modules.content import ContentTranslation
 from amnesia_multilingual.modules.document import DocumentTranslation
 
@@ -14,7 +16,7 @@ def includeme(config):
     config.include('amnesia_multilingual.modules.content.mapper')
     config.include('amnesia.modules.document.mapper')
 
-    orm.mapper(
+    mapper_registry.map_imperatively(
         DocumentTranslation,
         tables['amnesia_multilingual.document_translation'],
         inherits=ContentTranslation,
