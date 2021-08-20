@@ -25,5 +25,5 @@ def includeme(config):
             ct.c.content_id == Content.id
         ).correlate_except(
             Content
-        ).as_scalar()
+        ).scalar_subquery()
     )

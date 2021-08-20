@@ -19,7 +19,7 @@ def includeme(config):
 
     mapper_registry.map_imperatively(
         FolderTranslation,
-        tables['amnesia_multilingual.content_translation'],
+        tables['amnesia_multilingual.folder_translation'],
         inherits=ContentTranslation,
         polymorphic_identity=get_type_id(config, 'folder')
     )

@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import logging
-
-from pyramid.threadlocal import get_current_registry
-from pyramid.threadlocal import get_current_request
 
 from sqlalchemy import orm
 from sqlalchemy import sql
@@ -13,19 +8,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from amnesia.modules.language import Language
 
+from amnesia.utils.locale import get_current_locale
+from amnesia.utils.locale import get_default_locale
+
 log = logging.getLogger(__name__)
-
-
-def get_current_locale():
-    request = get_current_request()
-
-    return request.locale_name
-
-
-def get_default_locale():
-    registry = get_current_registry()
-
-    return registry.settings.get('pyramid.default_locale_name', 'en')
 
 
 def setup_relationships(content_cls, translation_cls,
@@ -45,24 +31,6 @@ def setup_relationships(content_cls, translation_cls,
     default_locale = sql.bindparam(None, callable_=default_locale,
                                    type_=String())
 
-    partition = sql.select([
-        translation_cls,
-        sql.func.row_number().over(
-            order_by=[
-                sql.desc(translation_cls.language_id == current_locale),
-                sql.desc(translation_cls.language_id == default_locale)
-            ],
-            partition_by=translation_cls.content_id
-        ).label('index')
-    ], use_labels=True).where(
-        sql.and_(
-            translation_cls.language_id.in_((current_locale, default_locale))
-        )
-    ).alias()
-
-    partition_alias = orm.aliased(
-        translation_cls, partition, flat=True
-    )
 
     # First, add properties on the Content-like class
 
@@ -78,14 +46,34 @@ def setup_relationships(content_cls, translation_cls,
 
     is_base_mapper = content_mapper.base_mapper is content_mapper
 
+    partition = sql.select(
+        translation_cls,
+        sql.func.row_number().over(
+            order_by=[
+                sql.desc(translation_cls.language_id == current_locale),
+                sql.desc(translation_cls.language_id == default_locale)
+            ],
+            partition_by=translation_cls.content_id
+        ).label('index')
+    ).where(
+        translation_cls.language_id.in_((current_locale, default_locale))
+    ).subquery(
+        name=content_current_translation
+    )
+
+    partition_alias = orm.aliased(
+        translation_cls, partition
+    )
+
     content_mapper.add_properties({
         content_current_translation: orm.relationship(
-            partition_alias,
+            lambda: partition_alias,
             primaryjoin=sql.and_(
                 orm.foreign(partition_alias.content_id) == content_cls.id,
                 partition.c.index == 1,
             ),
-            lazy='noload' if is_base_mapper else 'joined',
+            #lazy='noload' if is_base_mapper else 'joined',
+            lazy='joined',
             uselist=False,
             innerjoin=True,
             viewonly=True,
@@ -96,7 +84,7 @@ def setup_relationships(content_cls, translation_cls,
             lambda: translation_cls,
             cascade='all, delete-orphan',
             innerjoin=True,
-            lazy='noload' if is_base_mapper else 'select',
+            lazy='select',
             bake_queries=False,
             backref=orm.backref(
                 content_name,
@@ -112,7 +100,8 @@ def setup_relationships(content_cls, translation_cls,
     translation_mapper.add_properties({
         language_name: orm.relationship(
             Language,
-            lazy='noload' if is_base_mapper else 'select',
+            #lazy='noload' if is_base_mapper else 'select',
+            lazy='select',
             innerjoin=True,
             uselist=False,
             backref=orm.backref(
@@ -125,6 +114,7 @@ def setup_relationships(content_cls, translation_cls,
     content_cls.translations = getattr(content_cls, content_translations)
     content_cls.current_translation = getattr(content_cls,
                                               content_current_translation)
+    content_cls._current_translation_partition = partition
     translation_cls.language = getattr(translation_cls, language_name)
 
 
@@ -135,6 +125,7 @@ def setup_hybrids(cls, name, translation_cls,
     # object was private to the setup_relationships() function, so pull it out
     # here so we can use it in a query
     # See: https://docs.sqlalchemy.org/en/14/orm/join_conditions.html#relationship-to-aliased-class
+
     partition_alias = cls.current_translation.entity.entity
 
     def _fget(self):
@@ -151,6 +142,7 @@ def setup_hybrids(cls, name, translation_cls,
         setattr(trans, name, value)
 
     def _expr(_cls):
+        #return getattr(cls._current_translation_partition.c, name)
         return getattr(partition_alias, name)
 
     log.info('Adding hybrid attribute: %s.%s', cls, name)
@@ -158,4 +150,3 @@ def setup_hybrids(cls, name, translation_cls,
     prop = hybrid_property(fget=_fget, fset=_fset, expr=_expr)
 
     setattr(cls, name, prop)
-
