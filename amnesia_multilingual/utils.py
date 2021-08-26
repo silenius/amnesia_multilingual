@@ -83,9 +83,7 @@ def with_current_translations(stmt, entity, request=None):
 
     insp = inspect(entity)
     base = insp.class_
-    join = None
-    current_locale = get_current_locale()
-    default_locale = get_default_locale()
+    current_locale, default_locale = get_locales(request)
     translations = registry['amnesia.translations']['mappings']
 
     # orm.with_polymorphic entity
