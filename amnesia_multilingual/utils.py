@@ -132,4 +132,15 @@ def with_current_translations(stmt, entity, request=None):
             *options
         )
 
-    return (stmt, partition)
+        return (stmt, partition)
+    elif insp.is_mapper:
+        stmt = stmt.join(
+            entity.current_translation
+        ).options(
+            orm.contains_eager(
+                entity.current_translation,
+                alias=entity._current_translation_partition
+            )
+        )
+
+        return (stmt, entity._current_translation_partition)
