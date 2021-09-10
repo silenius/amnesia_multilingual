@@ -26,54 +26,48 @@ def with_translation_criteria(request=None, include_aliases=True):
 
     return criteria
 
-def with_translations(stmt, entity, request=None):
-    if request is None:
-        registry = get_current_registry()
-    else:
-        registry = request.registry
-
-    insp = inspect(entity)
-    base = insp.class_
-    options = [with_translation_criteria(request)]
-    join = None
-
-    if insp.is_aliased_class:
-        classes = [_.class_ for _ in insp.with_polymorphic_mappers]
-        aliased = []
-
-        translations = registry['amnesia.translations']['mappings']
-
-        for content, trans in translations.items():
-            if content in classes:
-                if content is base:
-                    options.append(orm.contains_eager(
-                        getattr(entity, 'translations')
-                    ))
-                else:
-                    aliased.append(trans)
-
-                    getter = attrgetter(
-                        '{}.translations'.format(content.__name__)
-                    )
-
-                    options.append(orm.contains_eager(getter(entity)))
-
-        join = entity.translations.of_type(
-            orm.with_polymorphic(ContentTranslation, aliased)
-        )
-    elif insp.is_mapper:
-        join = entity.translations
-
-        options.append(
-            orm.contains_eager(entity.translations)
-        )
-
-    if join:
-        stmt = stmt.join(join)
-
-    stmt = stmt.options(*options)
-
-    return stmt
+#def with_translations(stmt, entity, request=None):
+#    if request is None:
+#        registry = get_current_registry()
+#    else:
+#        registry = request.registry
+#
+#    insp = inspect(entity)
+#    base = insp.class_
+#    options = [with_translation_criteria(request)]
+#    join = None
+#    translations = registry['amnesia.translations']['mappings']
+#
+#    if insp.is_aliased_class:
+#        content_cls = {_.class_ for _ in insp.with_polymorphic_mappers}
+#        aliased = [t for c, t in translations.items() if c in content_cls]
+#
+#        join = entity.translations.of_type(
+#            orm.with_polymorphic(ContentTranslation, aliased)
+#        )
+#
+#        options = (
+#            orm.contains_eager(
+#                getattr(getattr(entity, cls.__name__), 'translations')
+#            )
+#            for cls in content_cls if cls is not base
+#        )
+#    elif insp.is_mapper:
+#        join = entity.translations
+#
+#        options.append(
+#            orm.contains_eager(entity.translations)
+#        )
+#
+#    if join:
+#        stmt = stmt.join(join)
+#
+#    stmt = stmt.options(
+#        orm.contains_eager(entity.translations),
+#        *options
+#    )
+#
+#    return stmt
 
 def with_current_translations(stmt, entity, request=None):
     if request is None:
@@ -110,7 +104,7 @@ def with_current_translations(stmt, entity, request=None):
         ).subquery()
 
         partition_alias = orm.aliased(
-            translation_cls, partition
+            translation_cls, partition, flat=True
         )
 
         options = (
@@ -128,6 +122,7 @@ def with_current_translations(stmt, entity, request=None):
                 partition.c.index==1
             )
         ).options(
+            #orm.contains_eager(entity.current_translation.of_type(partition_alias))
             orm.contains_eager(entity.current_translation, alias=partition),
             *options
         )

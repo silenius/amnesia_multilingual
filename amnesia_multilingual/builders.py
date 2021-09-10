@@ -142,8 +142,8 @@ def setup_hybrids(cls, name, translation_cls,
         setattr(trans, name, value)
 
     def _expr(_cls):
-        #return getattr(cls._current_translation_partition.c, name)
-        return getattr(partition_alias, name)
+        return getattr(cls._current_translation_partition.c, name)
+        #return getattr(partition_alias, name)
 
     log.info('Adding hybrid attribute: %s.%s', cls, name)
 
