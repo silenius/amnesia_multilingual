@@ -18,7 +18,7 @@ class FileTranslationManager(ContentTranslationManager):
 
     def __getitem__(self, path):
         if path in self.available_languages:
-            tr_doc = self.dbsession.query(FileTranslation).get({
+            tr_doc = self.dbsession.get(FileTranslation, {
                 'content_id': self.entity.id,
                 'language_id': path
             })

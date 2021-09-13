@@ -18,7 +18,7 @@ class EventTranslationManager(ContentTranslationManager):
 
     def __getitem__(self, path):
         if path in self.available_languages:
-            tr_doc = self.dbsession.query(EventTranslation).get({
+            tr_doc = self.dbsession.get(EventTranslation, {
                 'content_id': self.entity.id,
                 'language_id': path
             })

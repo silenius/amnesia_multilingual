@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
 from pyramid.security import Deny
@@ -36,10 +34,16 @@ class ContentTranslationManager(Resource):
         # pylint: disable=no-member
         filters = sql.and_(
             Language.id.in_(self.available_languages),
-            sql.not_(Language.content_translations.any(language_id=Language.id,
-                                               content_id=self.entity.id)))
+            sql.not_(
+                Language.content_translations.any(
+                    language_id=Language.id, content_id=self.entity.id
+                )
+            )
+        )
 
-        return self.dbsession.query(Language).filter(filters).all()
+        return self.dbsession.execute(
+            sql.select(Language).filter(filters)
+        ).scalars().all()
 
 
 class ContentTranslationEntity(Resource):
