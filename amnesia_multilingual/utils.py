@@ -69,7 +69,7 @@ def with_translation_criteria(request=None, include_aliases=True):
 #
 #    return stmt
 
-def with_current_translations(stmt, entity, request=None):
+def with_current_translations(stmt, entity, request=None, innerjoin=True):
     if request is None:
         registry = get_current_registry()
     else:
@@ -79,6 +79,7 @@ def with_current_translations(stmt, entity, request=None):
     base = insp.class_
     current_locale, default_locale = get_locales(request)
     translations = registry['amnesia.translations']['mappings']
+    stmt_join = stmt.join if innerjoin else stmt.outerjoin
 
     # orm.with_polymorphic entity
     if insp.is_aliased_class:
@@ -115,7 +116,7 @@ def with_current_translations(stmt, entity, request=None):
             for cls in content_cls if cls is not base
         )
 
-        stmt = stmt.join(
+        stmt = stmt_join(
             partition_alias,
             sql.and_(
                 partition_alias.content_id==entity.id,
@@ -129,7 +130,7 @@ def with_current_translations(stmt, entity, request=None):
 
         return (stmt, partition)
     elif insp.is_mapper:
-        stmt = stmt.join(
+        stmt = stmt_join(
             entity.current_translation
         ).options(
             orm.contains_eager(
