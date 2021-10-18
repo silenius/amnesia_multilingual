@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
-from amnesia.modules.language import Language
+from sqlalchemy.exc import DatabaseError
 
 from amnesia_multilingual.modules.content import ContentTranslationManager
 from amnesia_multilingual.modules.content import ContentTranslationEntity
@@ -28,10 +26,30 @@ class DocumentTranslationManager(ContentTranslationManager):
 
         raise KeyError
 
-    def query(self):
-        return self.dbsession.query(DocumentTranslation).filter_by(
-            content=self.entity)
+    def create(self, data):
+        new_translation = DocumentTranslation(
+            content=self.entity, **data
+        )
+
+        try:
+            self.dbsession.add(new_translation)
+            self.dbsession.flush()
+            return new_translation
+        except DatabaseError:
+            return False
 
 
 class DocumentTranslationEntity(ContentTranslationEntity):
-    pass
+
+    def __init__(self, request, translation_doc, parent):
+        super().__init__(request, translation_doc, parent)
+
+    def update(self, data):
+        self.entity.feed(**data)
+
+        try:
+            self.dbsession.add(self.entity)
+            self.dbsession.flush()
+            return self.entity
+        except DatabaseError:
+            return False

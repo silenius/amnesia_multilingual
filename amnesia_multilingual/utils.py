@@ -76,7 +76,7 @@ def with_current_translations(stmt, entity, request=None, innerjoin=True):
         registry = request.registry
 
     insp = inspect(entity)
-    base = insp.class_
+    base = insp.base_mapper.class_
     current_locale, default_locale = get_locales(request)
     translations = registry['amnesia.translations']['mappings']
     stmt_join = stmt.join if innerjoin else stmt.outerjoin
@@ -138,5 +138,13 @@ def with_current_translations(stmt, entity, request=None, innerjoin=True):
                 alias=entity._current_translation_partition
             )
         )
+
+        if insp.class_ is not base:
+            stmt = stmt.options(
+                orm.contains_eager(
+                    entity.content_current_translation,
+                    alias=entity._current_translation_partition
+                )
+            )
 
         return (stmt, entity._current_translation_partition)
