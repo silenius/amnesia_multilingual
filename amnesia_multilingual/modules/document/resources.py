@@ -11,8 +11,8 @@ log = logging.getLogger(__name__)
 
 class DocumentTranslationManager(ContentTranslationManager):
 
-    def __init__(self, request, content, parent):
-        super().__init__(request, content, parent)
+    def __init__(self, request, entity, parent):
+        super().__init__(request, entity, parent)
 
     def __getitem__(self, path):
         if path in self.available_languages:
@@ -45,11 +45,11 @@ class DocumentTranslationEntity(ContentTranslationEntity):
         super().__init__(request, translation_doc, parent)
 
     def update(self, data):
-        self.entity.feed(**data)
+        self.translation_doc.feed(**data)
 
         try:
-            self.dbsession.add(self.entity)
+            self.dbsession.add(self.translation_doc)
             self.dbsession.flush()
-            return self.entity
+            return self.translation_doc
         except DatabaseError:
             return False

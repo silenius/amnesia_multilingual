@@ -33,11 +33,11 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
     def edit(self):
         data = DocumentSchema(
             only=('title', 'description', 'body')
-        ).dump(self.context.entity)
+        ).dump(self.context.translation_doc)
 
         form = DocumentForm(self.request)
         form_action = self.request.resource_path(
-            self.context.entity.content,
+            self.context.translation_doc.content,
             'translations',
             self.context.language.id
         )
@@ -62,7 +62,7 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
         context=DocumentTranslationManager,
         request_method='POST',
         renderer='amnesia:templates/document/edit.pt',
-        permission='add_translation'
+        permission='manage_translations'
     )
     def create(self):
         form_data = self.request.POST.mixed()
@@ -75,7 +75,7 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = DocumentForm(self.request)
             form_action = self.request.resource_path(
-                self.context.entity,
+                self.context.content,
                 'translations'
             )
 
@@ -115,7 +115,7 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = DocumentForm(self.request)
             form_action = self.request.resource_path(
-                self.context.entity.content,
+                self.context.content,
                 'translations',
                 self.context.language.id
             )
