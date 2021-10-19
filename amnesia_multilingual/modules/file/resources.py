@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import logging
+
+from sqlalchemy.exc import DatabaseError
 
 from amnesia.modules.language import Language
 
@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 
 class FileTranslationManager(ContentTranslationManager):
 
-    def __init__(self, request, content, parent):
-        super().__init__(request, content, parent)
+    def __init__(self, request, entity, parent):
+        super().__init__(request, entity, parent)
 
     def __getitem__(self, path):
         if path in self.available_languages:
@@ -28,12 +28,21 @@ class FileTranslationManager(ContentTranslationManager):
 
         raise KeyError
 
-    def query(self):
-        return self.dbsession.query(FileTranslation).filter_by(
-            content=self.entity)
+    def create(self, data):
+        foo = {k: v for k,v in data.items() if k != 'content'}
+        new_translation = FileTranslation(
+            content=self.entity, **foo
+        )
+
+        try:
+            self.dbsession.add(new_translation)
+            self.dbsession.flush()
+            return new_translation
+        except DatabaseError:
+            return False
 
 
 class FileTranslationEntity(ContentTranslationEntity):
-    pass
+    """FileTranslation resource"""
 
 

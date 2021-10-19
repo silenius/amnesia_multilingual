@@ -8,6 +8,8 @@ from amnesia.views import BaseView
 from amnesia_multilingual.modules.file import FileTranslationManager
 from amnesia_multilingual.modules.file import FileTranslationEntity
 
+from amnesia.modules.file.forms import FileForm
+
 
 def includeme(config):
     config.scan(__name__)
@@ -30,4 +32,30 @@ class Translations(BaseView):
             'file': self.context.entity,
             'translations': self.context.entity.translations,
             'untranslated_languages': self.context.untranslated_languages()
+        }
+
+    @view_config(
+        request_method='GET', name='add_translation', accept='text/html',
+        renderer='amnesia:templates/file/edit.pt',
+        permission='manage_translations'
+    )
+    def add_translation(self):
+        lang = self.request.GET.getone('lang')
+        form = FileForm(self.request)
+        form_action = self.request.resource_path(
+            self.context.entity,
+            'translations',
+        )
+
+        data = {
+            'language_id': lang
+        }
+
+        meta = {
+            'sections': ('default', )
+        }
+
+        return {
+            'form': form.render(data, meta=meta),
+            'form_action': form_action,
         }
