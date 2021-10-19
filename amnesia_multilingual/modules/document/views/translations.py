@@ -36,7 +36,7 @@ class Translations(BaseView):
     @view_config(
         request_method='GET', name='add_translation', accept='text/html',
         renderer='amnesia:templates/document/edit.pt',
-        permission='add_translation'
+        permission='manage_translations'
     )
     def add_translation(self):
         lang = self.request.GET.getone('lang')

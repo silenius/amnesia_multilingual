@@ -82,6 +82,16 @@ class ContentTranslationEntity(Resource):
         if self.language.id == default_locale and keep_default:
             yield Deny, Everyone, 'delete'
 
+    def update(self, data):
+        self.translation_doc.feed(**data)
+
+        try:
+            self.dbsession.add(self.translation_doc)
+            self.dbsession.flush()
+            return self.translation_doc
+        except DatabaseError:
+            return False
+
     def delete(self):
         try:
             self.dbsession.delete(self.translation_doc)

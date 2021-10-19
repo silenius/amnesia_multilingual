@@ -40,16 +40,4 @@ class DocumentTranslationManager(ContentTranslationManager):
 
 
 class DocumentTranslationEntity(ContentTranslationEntity):
-
-    def __init__(self, request, translation_doc, parent):
-        super().__init__(request, translation_doc, parent)
-
-    def update(self, data):
-        self.translation_doc.feed(**data)
-
-        try:
-            self.dbsession.add(self.translation_doc)
-            self.dbsession.flush()
-            return self.translation_doc
-        except DatabaseError:
-            return False
+    """DocumentTranslation resource"""

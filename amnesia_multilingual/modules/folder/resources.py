@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 
 class FolderTranslationManager(ContentTranslationManager):
 
-    def __init__(self, request, content, parent):
-        super().__init__(request, content, parent)
+    def __init__(self, request, entity, parent):
+        super().__init__(request, entity, parent)
 
     def __getitem__(self, path):
         if path in self.available_languages:
@@ -28,12 +28,18 @@ class FolderTranslationManager(ContentTranslationManager):
 
         raise KeyError
 
-    def query(self):
-        return self.dbsession.query(FolderTranslation).filter_by(
-            content=self.entity)
+    def create(self, data):
+        new_translation = FolderTranslation(
+            content=self.entity, **data
+        )
+
+        try:
+            self.dbsession.add(new_translation)
+            self.dbsession.flush()
+            return new_translation
+        except DatabaseError:
+            return False
 
 
 class FolderTranslationEntity(ContentTranslationEntity):
-    pass
-
-
+    """FolderTranslation resource"""
