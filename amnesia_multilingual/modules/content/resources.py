@@ -83,7 +83,9 @@ class ContentTranslationEntity(Resource):
             yield Deny, Everyone, 'delete'
 
     def update(self, data):
-        self.translation_doc.feed(**data)
+        # FIXME
+        foo = {k: v for k,v in data.items() if k != 'content'}
+        self.translation_doc.feed(**foo)
 
         try:
             self.dbsession.add(self.translation_doc)

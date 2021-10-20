@@ -96,7 +96,7 @@ class FileTranslationCRUD(ContentTranslationCRUD):
         new_entity = self.context.create(data)
 
         if new_entity:
-            file_utils.save_to_disk(self.request, new_entity, data)
+            file_utils.save_to_disk(self.request, new_entity, data['content'])
             location = self.request.resource_url(new_entity.content)
             return HTTPFound(location=location)
 
@@ -116,7 +116,7 @@ class FileTranslationCRUD(ContentTranslationCRUD):
         form_data = self.request.POST.mixed()
         schema = FileSchema(context={
             'request': self.request
-        }, only=('title', 'description'))
+        }, only=('title', 'description', 'content'))
 
         try:
             data = schema.load(form_data)
@@ -136,6 +136,8 @@ class FileTranslationCRUD(ContentTranslationCRUD):
         updated_entity = self.context.update(data)
 
         if updated_entity:
+            file_utils.save_to_disk(self.request, updated_entity,
+                data['content'])
             location = self.request.resource_url(updated_entity.content)
             return HTTPFound(location=location)
 

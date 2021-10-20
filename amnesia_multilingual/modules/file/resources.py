@@ -29,7 +29,9 @@ class FileTranslationManager(ContentTranslationManager):
         raise KeyError
 
     def create(self, data):
+        # FIXME
         foo = {k: v for k,v in data.items() if k != 'content'}
+
         new_translation = FileTranslation(
             content=self.entity, **foo
         )
