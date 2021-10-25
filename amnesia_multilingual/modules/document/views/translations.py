@@ -7,7 +7,6 @@ from amnesia.modules.document.forms import DocumentForm
 from amnesia.views import BaseView
 
 from amnesia_multilingual.modules.document import DocumentTranslationManager
-from amnesia_multilingual.modules.document import DocumentTranslationEntity
 
 
 def includeme(config):

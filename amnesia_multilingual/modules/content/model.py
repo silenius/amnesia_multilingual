@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.ext.associationproxy import association_proxy
 from amnesia.modules import Base
 
