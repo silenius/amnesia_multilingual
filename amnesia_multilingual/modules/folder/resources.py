@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import logging
+
+from sqlalchemy.exc import DatabaseError
 
 from amnesia.modules.language import Language
 
