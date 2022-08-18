@@ -75,7 +75,7 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = DocumentForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations'
             )
 
@@ -115,7 +115,7 @@ class DocumentTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = DocumentForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations',
                 self.context.language.id
             )

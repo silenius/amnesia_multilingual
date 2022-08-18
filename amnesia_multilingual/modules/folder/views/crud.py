@@ -38,7 +38,7 @@ class FolderTranslationCRUD(ContentTranslationCRUD):
 
         form = FolderForm(self.request)
         form_action = self.request.resource_path(
-            self.context.translation_doc.content,
+            self.context.entity,
             'translations',
             self.context.language.id
         )
@@ -76,7 +76,7 @@ class FolderTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = FolderForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations'
             )
 
@@ -116,7 +116,7 @@ class FolderTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = FolderForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations',
                 self.context.language.id
             )
