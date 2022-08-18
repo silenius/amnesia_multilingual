@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import logging
+
+from marshmallow import ValidationError
 
 from pyramid.httpexceptions import HTTPNoContent
 from pyramid.httpexceptions import HTTPFound
@@ -39,7 +39,7 @@ class FileTranslationCRUD(ContentTranslationCRUD):
 
         form = FileForm(self.request)
         form_action = self.request.resource_path(
-            self.context.translation_doc.content,
+            self.context.entity,
             'translations',
             self.context.language.id
         )
@@ -77,7 +77,7 @@ class FileTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = FileForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations'
             )
 
@@ -123,7 +123,7 @@ class FileTranslationCRUD(ContentTranslationCRUD):
         except ValidationError as error:
             form = FileForm(self.request)
             form_action = self.request.resource_path(
-                self.context.content,
+                self.context.entity,
                 'translations',
                 self.context.language.id
             )
